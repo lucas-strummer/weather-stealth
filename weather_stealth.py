@@ -62,8 +62,19 @@ class WeatherStealth(plugins.Plugin):
             self._fetch_async()
 
     def on_webhook(self, path, request):
-        """GET /plugins/weather_stealth/toggle, /on, /off, /status."""
-        action = (path or "").strip("/").split("/")[-1]
+        """Handle both modern subpaths and legacy query-string routing.
+
+        Some Pwnagotchi releases only register /plugins/<name>/ and return
+        404 before a nested /on or /toggle path reaches the plugin.
+        """
+        action = ""
+        try:
+            action = request.args.get("action", "")
+        except AttributeError:
+            pass
+        if not action:
+            candidate = (path or "").strip("/").split("/")[-1]
+            action = candidate if candidate in ("toggle", "on", "off", "status") else "status"
         if action in ("toggle", "on", "off"):
             self._active = (not self._active) if action == "toggle" else action == "on"
             if self._active:

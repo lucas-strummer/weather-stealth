@@ -18,7 +18,7 @@ Si `latitude` y `longitude` quedan vacíos, se intenta geolocalización aproxima
 
 ## Uso on-demand
 
-Desde el Web UI abrir `/plugins/weather_stealth/toggle`, o usar `/on` y `/off`. Mientras está activo, el plugin actualiza cada `refresh_seconds` segundos y vuelve a intentar cuando Pwnagotchi informa que hay internet. Si no hay tether o internet, conserva el último dato y muestra `SIN DATOS / TETHER?`.
+Desde el Web UI abrir `/plugins/weather_stealth/toggle`, o usar `/on` y `/off`. En versiones que devuelven 404 para subrutas, usar `/plugins/weather_stealth/?action=on`, `/plugins/weather_stealth/?action=off` o `/plugins/weather_stealth/?action=toggle`. Mientras está activo, el plugin actualiza cada `refresh_seconds` segundos y vuelve a intentar cuando Pwnagotchi informa que hay internet. Si no hay tether o internet, conserva el último dato y muestra `SIN DATOS / TETHER?`.
 
 ## Compatibilidad
 
