@@ -143,7 +143,7 @@ class WeatherStealth(plugins.Plugin):
             self._hide_core_ui()
             current = self._weather["current"]
             daily = self._weather["daily"]
-            values = ("CLIMA " + self._icon(current["weather_code"]), self._line("Ahora", current["temperature_2m"], current["wind_speed_10m"], self._weather.get("current_units", {})), self._day_line("Hoy", daily, 0), self._day_line("Mañana", daily, 1), self._status)
+            values = ("CLIMA " + self._icon(current["weather_code"]), self._line("Ahora", current["weather_code"], current["temperature_2m"], current["wind_speed_10m"], self._weather.get("current_units", {})), self._day_line("Hoy", daily, 0), self._day_line("Mañana", daily, 1), self._status)
         for name, value in zip(self.ELEMENTS, values):
             try:
                 self._ui.set(name, value)
@@ -189,8 +189,8 @@ class WeatherStealth(plugins.Plugin):
             pass
 
     @staticmethod
-    def _line(label, temp, wind, units):
-        return "%s %s %+.0fC  Viento %.0f %s" % (label, "[?]", temp, wind, units.get("wind_speed_10m", "km/h"))
+    def _line(label, code, temp, wind, units):
+        return "%s %s %+.0fC  Viento %.0f %s" % (label, WeatherStealth._icon(code), temp, wind, units.get("wind_speed_10m", "km/h"))
 
     def _day_line(self, label, daily, index):
         return "%s %s %+.0f/%+.0fC" % (label, self._icon(daily["weather_code"][index]), daily["temperature_2m_min"][index], daily["temperature_2m_max"][index])
