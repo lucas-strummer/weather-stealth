@@ -190,16 +190,16 @@ class WeatherStealth(plugins.Plugin):
 
     @staticmethod
     def _line(label, temp, wind, units):
-        return "%s %+.0fC  Viento %.0f %s" % (label, temp, wind, units.get("wind_speed_10m", "km/h"))
+        return "%s %s %+.0fC  Viento %.0f %s" % (label, "[?]", temp, wind, units.get("wind_speed_10m", "km/h"))
 
     def _day_line(self, label, daily, index):
         return "%s %s %+.0f/%+.0fC" % (label, self._icon(daily["weather_code"][index]), daily["temperature_2m_min"][index], daily["temperature_2m_max"][index])
 
     @staticmethod
     def _icon(code):
-        # ASCII-only: the stock Pwnagotchi fonts do not contain emoji/weather
-        # glyphs and render them as corrupted blocks on small displays.
-        return {0: "SUN", 1: "SUN", 2: "PART", 3: "CLD", 45: "FOG", 48: "FOG", 51: "RAIN", 53: "RAIN", 55: "RAIN", 61: "RAIN", 63: "RAIN", 65: "RAIN", 71: "SNOW", 73: "SNOW", 75: "SNOW", 80: "RAIN", 81: "RAIN", 82: "RAIN", 95: "STORM", 96: "STORM", 99: "STORM"}.get(code, "?")
+        # ASCII-only pictograms: the stock Pwnagotchi fonts do not contain
+        # emoji/weather glyphs and render them as corrupted blocks.
+        return {0: "[O]", 1: "[O]", 2: "[o]", 3: "[C]", 45: "[=]", 48: "[=]", 51: "[~]", 53: "[~]", 55: "[~]", 61: "[/]", 63: "[/]", 65: "[/]", 71: "[*]", 73: "[*]", 75: "[*]", 80: "[/]", 81: "[/]", 82: "[/]", 95: "[!]", 96: "[!]", 99: "[!]"}.get(code, "[?]")
 
     @staticmethod
     def _html(message):

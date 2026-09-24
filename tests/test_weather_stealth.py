@@ -23,7 +23,7 @@ def load_plugin():
 
 def test_weather_icons_and_day_line():
     plugin = load_plugin().WeatherStealth()
-    assert plugin._icon(0) == "SUN"
+    assert plugin._icon(0) == "[O]"
     daily = {"weather_code": [0, 61], "temperature_2m_min": [10, 11], "temperature_2m_max": [20, 21]}
     assert "Mañana" in plugin._day_line("Mañana", daily, 1)
 
