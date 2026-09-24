@@ -162,6 +162,7 @@ class WeatherStealth(plugins.Plugin):
         # Values are repopulated by the normal Pwnagotchi loop on the next
         # state change. Avoid calling ui.update() here: that would recurse
         # into this plugin's on_ui_update callback.
+        pass
 
     @staticmethod
     def _line(label, temp, wind, units):
