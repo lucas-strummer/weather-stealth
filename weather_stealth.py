@@ -26,6 +26,7 @@ class WeatherStealth(plugins.Plugin):
     __description__ = "On-demand weather and forecast screen using phone tethering."
 
     ELEMENTS = ("ws_title", "ws_now", "ws_today", "ws_tomorrow", "ws_status")
+    CORE_ELEMENTS = ("channel", "aps", "uptime", "line1", "line2", "face", "friend_face", "friend_name", "name", "status", "shakes", "mode")
 
     def __init__(self):
         self.options = {}
@@ -44,11 +45,11 @@ class WeatherStealth(plugins.Plugin):
     def on_ui_setup(self, ui):
         self._ui = ui
         x = 2
-        ui.add_element("ws_title", LabeledValue(color=BLACK, label="", value="CLIMA", position=(x, 0), label_font=fonts.Bold, text_font=fonts.Bold))
-        ui.add_element("ws_now", LabeledValue(color=BLACK, label="", value="", position=(x, 20), label_font=fonts.Bold, text_font=fonts.Medium))
-        ui.add_element("ws_today", LabeledValue(color=BLACK, label="", value="", position=(x, 40), label_font=fonts.Bold, text_font=fonts.Medium))
-        ui.add_element("ws_tomorrow", LabeledValue(color=BLACK, label="", value="", position=(x, 60), label_font=fonts.Bold, text_font=fonts.Medium))
-        ui.add_element("ws_status", LabeledValue(color=BLACK, label="", value="", position=(x, 80), label_font=fonts.Bold, text_font=fonts.Small))
+        ui.add_element("ws_title", LabeledValue(color=BLACK, label="", value="CLIMA", position=(x, 2), label_font=fonts.Bold, text_font=fonts.Bold))
+        ui.add_element("ws_now", LabeledValue(color=BLACK, label="", value="", position=(x, 24), label_font=fonts.Bold, text_font=fonts.Medium))
+        ui.add_element("ws_today", LabeledValue(color=BLACK, label="", value="", position=(x, 45), label_font=fonts.Bold, text_font=fonts.Medium))
+        ui.add_element("ws_tomorrow", LabeledValue(color=BLACK, label="", value="", position=(x, 66), label_font=fonts.Bold, text_font=fonts.Medium))
+        ui.add_element("ws_status", LabeledValue(color=BLACK, label="", value="", position=(x, 88), label_font=fonts.Bold, text_font=fonts.Small))
         self._render()
 
     def on_ui_update(self, ui):
@@ -122,9 +123,12 @@ class WeatherStealth(plugins.Plugin):
             return
         if not self._active:
             values = ("", "", "", "", "")
+            self._restore_core_ui()
         elif not self._weather:
+            self._hide_core_ui()
             values = ("CLIMA", "Consultando...", "", "", self._status)
         else:
+            self._hide_core_ui()
             current = self._weather["current"]
             daily = self._weather["daily"]
             values = ("CLIMA " + self._icon(current["weather_code"]), self._line("Ahora", current["temperature_2m"], current["wind_speed_10m"], self._weather.get("current_units", {})), self._day_line("Hoy", daily, 0), self._day_line("Mañana", daily, 1), self._status)
@@ -133,6 +137,20 @@ class WeatherStealth(plugins.Plugin):
                 self._ui.set(name, value)
             except (AttributeError, KeyError):
                 pass
+
+    def _hide_core_ui(self):
+        # Core Pwnagotchi callbacks continue updating face/status.  Blank them
+        # on every render after those callbacks and before the canvas is drawn.
+        for name in self.CORE_ELEMENTS:
+            try:
+                self._ui.set(name, " ")
+            except (AttributeError, KeyError):
+                pass
+
+    def _restore_core_ui(self):
+        # Values are repopulated by the normal Pwnagotchi loop on the next
+        # state change. Avoid calling ui.update() here: that would recurse
+        # into this plugin's on_ui_update callback.
 
     @staticmethod
     def _line(label, temp, wind, units):
@@ -143,7 +161,9 @@ class WeatherStealth(plugins.Plugin):
 
     @staticmethod
     def _icon(code):
-        return {0: "☀", 1: "☀", 2: "⛅", 3: "☁", 45: "≋", 48: "≋", 51: "☂", 53: "☂", 55: "☂", 61: "☂", 63: "☂", 65: "☂", 71: "*", 73: "*", 75: "*", 80: "☂", 81: "☂", 82: "☂", 95: "⚡", 96: "⚡", 99: "⚡"}.get(code, "?")
+        # ASCII-only: the stock Pwnagotchi fonts do not contain emoji/weather
+        # glyphs and render them as corrupted blocks on small displays.
+        return {0: "SUN", 1: "SUN", 2: "PART", 3: "CLD", 45: "FOG", 48: "FOG", 51: "RAIN", 53: "RAIN", 55: "RAIN", 61: "RAIN", 63: "RAIN", 65: "RAIN", 71: "SNOW", 73: "SNOW", 75: "SNOW", 80: "RAIN", 81: "RAIN", 82: "RAIN", 95: "STORM", 96: "STORM", 99: "STORM"}.get(code, "?")
 
     @staticmethod
     def _html(message):

@@ -1,6 +1,6 @@
 # Weather Stealth para Pwnagotchi
 
-Plugin para mostrar clima actual y pronóstico de dos días bajo demanda. Consulta Open-Meteo usando la conexión disponible del Pwnagotchi, por ejemplo el tether del teléfono. No requiere API key.
+Plugin para mostrar clima actual y pronóstico de dos días bajo demanda. Consulta Open-Meteo usando la conexión disponible del Pwnagotchi, por ejemplo el tether del teléfono. No requiere API key. Al activarlo, oculta temporalmente los elementos estándar de la UI y los vuelve a dejar disponibles al desactivarlo.
 
 ## Instalación
 
