@@ -37,6 +37,7 @@ class WeatherStealth(plugins.Plugin):
         self._weather = None
         self._last_fetch = 0
         self._status = "OFF"
+        self._hidden_widgets = {}
 
     def on_loaded(self):
         self._active = bool(self.options.get("enabled", False))
@@ -150,19 +151,42 @@ class WeatherStealth(plugins.Plugin):
                 pass
 
     def _hide_core_ui(self):
-        # Core Pwnagotchi callbacks continue updating face/status.  Blank them
-        # on every render after those callbacks and before the canvas is drawn.
-        for name in self.CORE_ELEMENTS:
-            try:
-                self._ui.set(name, " ")
-            except (AttributeError, KeyError):
-                pass
+        # Hide every existing widget except this plugin's widgets. This also
+        # covers optional plugins such as bt-tether and memtemp, whose element
+        # names vary between Pwnagotchi releases.
+        try:
+            state = self._ui._state._state
+            for name, widget in state.items():
+                if name in self.ELEMENTS or name in self._hidden_widgets:
+                    continue
+                if hasattr(widget, "xy"):
+                    self._hidden_widgets[name] = (widget.xy, getattr(widget, "label", None))
+                    widget.xy = (-1000, -1000)
+                    if hasattr(widget, "label"):
+                        widget.label = None
+        except (AttributeError, RuntimeError):
+            # Fallback for forks that do not expose the state dictionary.
+            for name in self.CORE_ELEMENTS:
+                try:
+                    self._ui.set(name, " ")
+                except (AttributeError, KeyError):
+                    pass
 
     def _restore_core_ui(self):
         # Values are repopulated by the normal Pwnagotchi loop on the next
         # state change. Avoid calling ui.update() here: that would recurse
         # into this plugin's on_ui_update callback.
-        pass
+        try:
+            state = self._ui._state._state
+            for name, (xy, label) in self._hidden_widgets.items():
+                widget = state.get(name)
+                if widget is not None:
+                    widget.xy = xy
+                    if hasattr(widget, "label"):
+                        widget.label = label
+            self._hidden_widgets = {}
+        except AttributeError:
+            pass
 
     @staticmethod
     def _line(label, temp, wind, units):
